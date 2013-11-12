@@ -648,15 +648,15 @@ fi
 done
 
 if [ "\$(/usr/sbin/semanage login -l | /bin/grep "${USER_PREFIX}" | \
-/bin/awk -F " " '{ print \$1 ":" \$2}')" != \
+/bin/awk -F " " '{ print \$1 ":" \$2}' | grep ^${USER_PREFIX}:${USER_PREFIX}_u$ )" != \
 ""$USER_PREFIX":"${USER_PREFIX}_u"" ] ; then
 printf "\$SCRIPT:\$LINENO: %s\n" "Association '"${USER_PREFIX}":"${USER_PREFIX}_u"' not found" \
 >&2
 exit 192
 fi
 
-if [ "\$(/bin/grep "${USER_PREFIX}" /etc/passwd | \
-/bin/awk -F ":" '{ print \$1 }')" != "${USER_PREFIX}" ] ; then  
+if [ "\$(/bin/cat /etc/passwd | /bin/awk -F ":" '{ print \$1 }' | grep ^ed$ )" \
+!= "${USER_PREFIX}" ] ; then
 printf "\$SCRIPT:\$LINENO: %s\n" "User '${USER_PREFIX}' does not exist" >&2
 exit 192
 fi
