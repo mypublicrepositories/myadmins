@@ -24,7 +24,7 @@ do
 done
 
 for util in /usr/sbin/semanage /usr/sbin/semodule /usr/sbin/useradd  \
-    /usr/sbin/userdel /bin/whoami;
+    /usr/sbin/userdel;
 do
     if [ ! -f $util ] ; then
         printf "$SCRIPT:$LINENO: %s\n" "Utility '$util' is not available" >&2
@@ -491,13 +491,6 @@ fi
 
 if [ ! -f /usr/share/selinux/devel/Makefile ] ; then
 printf "\$SCRIPT:\$LINENO: %s\n" "File '/usr/share/selinux/devel/Makefile' not found" \
->&2
-exit 192
-fi
-
-if [ "\$(/usr/sbin/semodule -l | /bin/grep "$USER_PREFIX" | \
-awk -F " " '{ print \$1 }')" == "${USER_PREFIX}" ] ; then
-printf "\$SCRIPT:\$LINENO: %s\n" "Module with name '$USER_PREFIX' already exists" \
 >&2
 exit 192
 fi
