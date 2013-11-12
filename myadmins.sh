@@ -542,18 +542,20 @@ exit 192
 fi
 
 if [ "\$(/bin/grep "${USER_PREFIX}" /etc/passwd | \
-awk -F ":" '{ print \$1 }')" == "${USER_PREFIX}" ] ; then  
+awk -F ":" '{ print \$1 }' | /bin/grep ^$USER_PREFIX$ )" == \
+"${USER_PREFIX}" ] ; then  
 printf "\$SCRIPT:\$LINENO: %s\n" "User '${USER_PREFIX}' already exists" >&2
 exit 192
 fi
 
 if [ "\$(/usr/sbin/semanage login -l | /bin/grep "${USER_PREFIX}" | \
-/bin/awk -F " " '{ print \$1 }')" == "$USER_PREFIX" ] ; then
+/bin/awk -F " " '{ print \$1 }' | /bin/grep ^$USER_PREFIX$ )" == "$USER_PREFIX" ] ; then
 printf "\$SCRIPT:\$LINENO: %s\n" "User '${USER_PREFIX}' is already associated" \
 >&2
 exit 192
 elif [ "\$(/usr/sbin/semanage login -l | /bin/grep "${USER_PREFIX}" | \
-/bin/awk -F " " '{ print \$2 }')" == "${USER_PREFIX}_u" ] ; then
+/bin/awk -F " " '{ print \$2 }' | /bin/grep ^$USER_PREFIX$ )" == \
+"${USER_PREFIX}_u" ] ; then
 printf "\$SCRIPT:\$LINENO: %s\n" "Identity '${USER_PREFIX}_u' already exists" \
 >&2
 exit 192
@@ -648,14 +650,14 @@ fi
 done
 
 if [ "\$(/usr/sbin/semanage login -l | /bin/grep "${USER_PREFIX}" | \
-/bin/awk -F " " '{ print \$1 ":" \$2}' | grep ^${USER_PREFIX}:${USER_PREFIX}_u$ )" != \
+/bin/awk -F " " '{ print \$1 ":" \$2}' | /bin/grep ^${USER_PREFIX}:${USER_PREFIX}_u$ )" != \
 ""$USER_PREFIX":"${USER_PREFIX}_u"" ] ; then
 printf "\$SCRIPT:\$LINENO: %s\n" "Association '"${USER_PREFIX}":"${USER_PREFIX}_u"' not found" \
 >&2
 exit 192
 fi
 
-if [ "\$(/bin/cat /etc/passwd | /bin/awk -F ":" '{ print \$1 }' | grep ^ed$ )" \
+if [ "\$(/bin/cat /etc/passwd | /bin/awk -F ":" '{ print \$1 }' | /bin/grep ^ed$ )" \
 != "${USER_PREFIX}" ] ; then
 printf "\$SCRIPT:\$LINENO: %s\n" "User '${USER_PREFIX}' does not exist" >&2
 exit 192
