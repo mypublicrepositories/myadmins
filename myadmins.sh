@@ -367,6 +367,11 @@ else
         exit 192;
 fi
 
+if [ "$SUDO" != "SUDO" -a "$SU" != "SU" ] ; then
+    printf "$SCRIPT:$LINENO: %s\n" "Options '--sudo', and '--su' are both unset"  >&2
+    exit 192;
+fi
+
 if [ "$SUDO" == "SUDO" ] ; then
         sudo $USER_PREFIX
 fi
@@ -404,6 +409,10 @@ done
 gen_user(${USER_PREFIX}_u, user, ${USER_PREFIX}_r ${ROLE_PREFIX}_r, s0, s0 - mls_systemhigh, mcs_allcats)
 
 EOF
+
+if [ -f "${USER_PREFIX}_u" ] ; then
+    printf "%s\n" "Replacing '${USER_PREFIX}_u' file" >&2
+fi
 
 if [ ! -z "$USER_PREFIX" -a "$GUI" == "GUI" ] ; then
     if [ "$(/usr/bin/seinfo --sensitivity | /bin/head -n 1 | /bin/awk -F " " \
@@ -446,11 +455,11 @@ if [ "$SUDO" == "SUDO" ] ; then
     if [ "$(/usr/bin/seinfo --sensitivity | /bin/head -n 1 | /bin/awk -F " " \
 '{ print $2 }')" == "0" ] ; then
         /bin/cat >> ${USER_PREFIX}_u <<EOF
-${USER_PREFIX}_r:${USER_PREFIX}_sudo_t ${USER_PREFIX}_r:${USER_PREFIX}_t ${ROLE_PREFIX}_r:${ROLE_PREFIX}_t
+${USER_PREFIX}_r:${USER_PREFIX}_sudo_t ${USER_PREFIX}_r:${USER_PREFIX}_t
 EOF
     else
         /bin/cat >> ${USER_PREFIX}_u <<EOF
-${USER_PREFIX}_r:${USER_PREFIX}_sudo_t:s0 ${USER_PREFIX}_r:${USER_PREFIX}_t:s0 ${ROLE_PREFIX}_r:${ROLE_PREFIX}_t:s0
+${USER_PREFIX}_r:${USER_PREFIX}_sudo_t:s0 ${USER_PREFIX}_r:${USER_PREFIX}_t:s0
 EOF
     fi
 fi
@@ -459,11 +468,11 @@ if [ "$SU" == "SU" ] ; then
     if [ "$(/usr/bin/seinfo --sensitivity | /bin/head -n 1 | /bin/awk -F " " \
 '{ print $2 }')" == "0" ] ; then
     /bin/cat >> ${USER_PREFIX}_u <<EOF
-${USER_PREFIX}_r:${USER_PREFIX}_su_t ${USER_PREFIX}_r:${USER_PREFIX}_t ${ROLE_PREFIX}_r:${ROLE_PREFIX}_t
+${USER_PREFIX}_r:${USER_PREFIX}_su_t ${USER_PREFIX}_r:${USER_PREFIX}_t
 EOF
     else
     /bin/cat >> ${USER_PREFIX}_u <<EOF
-${USER_PREFIX}_r:${USER_PREFIX}_su_t:s0 ${USER_PREFIX}_r:${USER_PREFIX}_t:s0 ${ROLE_PREFIX}_r:${ROLE_PREFIX}_t:s0
+${USER_PREFIX}_r:${USER_PREFIX}_su_t:s0 ${USER_PREFIX}_r:${USER_PREFIX}_t:s0
 EOF
     fi
 fi
