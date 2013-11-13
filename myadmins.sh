@@ -730,7 +730,7 @@ printf "%s\n" "Removing '/etc/selinux/"\$(/bin/grep ^SELINUXTYPE= \
 
 printf "%s\n" "Removing '${USER_PREFIX}' from '/etc/security/sepermit.conf'"
  
-if [ "\$(/bin/grep ^"$USER_PREFIX" /etc/security/sepermit.conf | /bin/greo \
+if [ "\$(/bin/grep ^"$USER_PREFIX" /etc/security/sepermit.conf | /bin/grep \
 ^$USER_PREFIX$ )" == "$USER_PREFIX" ] ; then
 /bin/sed -i "/^${USER_PREFIX}$/d" /etc/security/sepermit.conf
 fi
