@@ -354,6 +354,11 @@ if [ ! $(/usr/bin/seinfo -txdm_t 2>/dev/null) ] ; then
     exit 192
 fi
 
+if [ "$SUDO" != "SUDO" -a "$SU" != "SU" ] ; then
+    printf "$SCRIPT:$LINENO: %s\n" "Options '--sudo', and '--su' are both unset"  >&2
+    exit 192;
+fi
+
 if [ -f "${USER_PREFIX}.te" ] ; then
     printf "%s\n" "Replacing '${USER_PREFIX}.te' source policy file" >&2
 fi
@@ -365,11 +370,6 @@ elif [ ! -z "$USER_PREFIX" -a "$GUI" == "" ] ; then
 else
         printf "$SCRIPT:$LINENO: %s\n" "Unhandled exception" >&2
         exit 192;
-fi
-
-if [ "$SUDO" != "SUDO" -a "$SU" != "SU" ] ; then
-    printf "$SCRIPT:$LINENO: %s\n" "Options '--sudo', and '--su' are both unset"  >&2
-    exit 192;
 fi
 
 if [ "$SUDO" == "SUDO" ] ; then
