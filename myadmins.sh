@@ -89,7 +89,7 @@ sudo_role_template($1, ${1}_r, ${1}_t)
 EOF
 }
 
-# Expects single parameter: user_prefix
+# Expects a single parameter: user_prefix
 
 su() {
         /bin/cat >> $1.te <<EOF
@@ -134,6 +134,7 @@ fi
 while [ $# -gt 0 ] ; do
     case "$1" in
         -h | --help)
+
             printf "%s\n" "$SCRIPT - Generate SELinux confined administrators"
             printf "%s\n" ""
             printf "%s\n" "-h | --help                                 Display this help message"
@@ -160,7 +161,9 @@ while [ $# -gt 0 ] ; do
             interface_prefixes
             exit 0
             ;;
-        -r | --role ) shift
+        -r | --role )
+
+            shift
 
             if [ $# -eq 0 ] ; then
                 printf "$SCRIPT:$LINENO: %s\n" "Role prefix is missing" >&2
@@ -269,8 +272,8 @@ if [ ! -f /usr/share/selinux/devel/include/system/userdomain.if ] ; then
     exit 192
 elif [ $(/bin/grep userdom_restricted_user_template \
 /usr/share/selinux/devel/include/system/userdomain.if \
-| /bin/awk -F "\`" '{ print $2 }' | /bin/awk -F "\'" '{ print $1 }' 2>/dev/null) \
-    != "userdom_restricted_user_template" ] ; then
+| /bin/awk -F "\`" '{ print $2 }' | /bin/awk -F "\'" '{ print $1 }' \
+    2>/dev/null) != "userdom_restricted_user_template" ] ; then
     printf "$SCRIPT:$LINENO: %s\n" "Template 'userdom_restricted_user_template()' not found" \
         >&2
     exit 192
@@ -288,8 +291,8 @@ if [ ! -f /usr/share/selinux/devel/include/admin/sudo.if ] ; then
         >&2
     exit 192
 elif [ $(/bin/grep sudo_role_template /usr/share/selinux/devel/include/admin/sudo.if \
-    | /bin/awk -F "\`" '{ print $2 }' | /bin/awk -F "\'" '{ print $1 }' 2>/dev/null) \
-    != "sudo_role_template" ] ; then
+    | /bin/awk -F "\`" '{ print $2 }' | /bin/awk -F "\'" '{ print $1 }' \
+    2>/dev/null) != "sudo_role_template" ] ; then
     printf "$SCRIPT:$LINENO: %s\n" "Template 'sudo_role_template()' not found" \
         >&2
     exit 192
@@ -378,7 +381,8 @@ fi
 
 if [ ! -z "$INTERFACE_PREFIX" ] ; then
 
-        INTERFACE_PREFIX=$(printf "%s\n" "$INTERFACE_PREFIX" | /bin/sed s/,/" "/g)
+        INTERFACE_PREFIX=$(printf "%s\n" "$INTERFACE_PREFIX" | \
+            /bin/sed s/,/" "/g)
 
         for interface in $INTERFACE_PREFIX; do
                 interface_prefixes | /bin/grep $interface >/dev/null
@@ -442,11 +446,11 @@ if [ "$SUDO" == "SUDO" ] ; then
     if [ "$(/usr/bin/seinfo --sensitivity | /bin/head -n 1 | /bin/awk -F " " \
 '{ print $2 }')" == "0" ] ; then
         /bin/cat >> ${USER_PREFIX}_u <<EOF
-${USER_PREFIX}_r:${USER_PREFIX}_sudo_t ${USER_PREFIX}_r:${USER_PREFIX}_t
+${USER_PREFIX}_r:${USER_PREFIX}_sudo_t ${USER_PREFIX}_r:${USER_PREFIX}_t ${ROLE_PREFIX}_r:${ROLE_PREFIX}_t
 EOF
     else
         /bin/cat >> ${USER_PREFIX}_u <<EOF
-${USER_PREFIX}_r:${USER_PREFIX}_sudo_t:s0 ${USER_PREFIX}_r:${USER_PREFIX}_t:s0
+${USER_PREFIX}_r:${USER_PREFIX}_sudo_t:s0 ${USER_PREFIX}_r:${USER_PREFIX}_t:s0 ${ROLE_PREFIX}_r:${ROLE_PREFIX}_t:s0
 EOF
     fi
 fi
@@ -455,11 +459,11 @@ if [ "$SU" == "SU" ] ; then
     if [ "$(/usr/bin/seinfo --sensitivity | /bin/head -n 1 | /bin/awk -F " " \
 '{ print $2 }')" == "0" ] ; then
     /bin/cat >> ${USER_PREFIX}_u <<EOF
-${USER_PREFIX}_r:${USER_PREFIX}_su_t ${USER_PREFIX}_r:${USER_PREFIX}_t
+${USER_PREFIX}_r:${USER_PREFIX}_su_t ${USER_PREFIX}_r:${USER_PREFIX}_t ${ROLE_PREFIX}_r:${ROLE_PREFIX}_t
 EOF
     else
     /bin/cat >> ${USER_PREFIX}_u <<EOF
-${USER_PREFIX}_r:${USER_PREFIX}_su_t:s0 ${USER_PREFIX}_r:${USER_PREFIX}_t:s0
+${USER_PREFIX}_r:${USER_PREFIX}_su_t:s0 ${USER_PREFIX}_r:${USER_PREFIX}_t:s0 ${ROLE_PREFIX}_r:${ROLE_PREFIX}_t:s0
 EOF
     fi
 fi
@@ -726,8 +730,8 @@ printf "%s\n" "Removing '/etc/selinux/"\$(/bin/grep ^SELINUXTYPE= \
 
 printf "%s\n" "Removing '${USER_PREFIX}' from '/etc/security/sepermit.conf'"
  
-if [ "\$(/bin/grep ^"$USER_PREFIX" /etc/security/sepermit.conf)" == \
-"$USER_PREFIX" ] ; then
+if [ "\$(/bin/grep ^"$USER_PREFIX" /etc/security/sepermit.conf | /bin/greo \
+^$USER_PREFIX$ )" == "$USER_PREFIX" ] ; then
 /bin/sed -i "/^${USER_PREFIX}$/d" /etc/security/sepermit.conf
 fi
 
